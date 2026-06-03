@@ -23,6 +23,19 @@
 // cli
 // $ pdfconcat <page1-dir> <page2-dir> append|all  or dotnet run
 //
+// on .csjpro
+// <ItemGroup>
+//   <PackageReference Include="PdfSharpCore" Version="1.3.67" />
+// </ItemGroup>
+//
+// or
+//
+// add package first
+// bash
+// dotnet add package PdfSharpCore --version 1.3.67
+// PowerShell
+// Install-Package PdfSharpCore -Version 1.3.67
+//
 
 using System;
 using System.IO;
