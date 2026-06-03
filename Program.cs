@@ -1,6 +1,6 @@
 //
 // pdfconcat  concatinate 2 pdf files in 1 (appen) or all pdfs in 1 pdf file with page appending order
-// codeed by google gemini
+// coded by google gemini
 // for all person who hate such a damn work by hand also I am one of those.  NA-KA-MA!!
 // 06/03/2026 Ver. 0.1
 //
