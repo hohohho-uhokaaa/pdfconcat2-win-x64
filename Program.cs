@@ -18,7 +18,7 @@
 // page1/00000003.pdf + page2/00000003.pdf -> output/00000003.pdf
 //
 // append mode : all
-// page1/00000001.pdf + page2/00000001.pdf + page1/00000002.pdf + page2/00000002.pdf + page1/00000003.pdf + page2/00000003.pdf -> output/xxxxxxxx.pdf
+// page1/00000001.pdf + page2/00000001.pdf + page1/00000002.pdf + page2/00000002.pdf + page1/00000003.pdf + page2/00000003.pdf -> output/alllin1.pdf
 //
 // cli
 // $ pdfconcat <page1-dir> <page2-dir> append|all  or debug run with launch.json
