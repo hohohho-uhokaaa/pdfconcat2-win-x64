@@ -7,14 +7,30 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+        <Version>0.2</Version>
+        <Description>PDF file concatenation utility</Description>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>partial</TrimMode>
+        <TestSourcePath></TestSourcePath>
+        <Deterministic>true</Deterministic>
+        <Product>pdfconcat2</Product>
+        <Company>Your Company</Company>
+        <Copyright>© 2026</Copyright>
+        <WarningLevel>latest</WarningLevel>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <PlatformTarget>x64</PlatformTarget>
+      <DebugSymbols>true</DebugSymbols>
+      <Optimize>false</Optimize>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <PlatformTarget>x64</PlatformTarget>
+      <SelfContained>true</SelfContained>
+      <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+      <Optimize>true</Optimize>
+      <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,9 +38,10 @@
       <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="dotnet run --no-build &quot;/home/ohyourdad/Projects/Sources/idea-Projects/Rider/pdfconcat/page1&quot; &quot;/home/ohyourdad/Projects/Sources/idea-Projects/Rider/pdfconcat/page2&quot; append" />
-      
-      <Exec Command="dotnet run --no-build &quot;/home/ohyourdad/Projects/Sources/idea-Projects/Rider/pdfconcat/page1&quot; &quot;/home/ohyourdad/Projects/Sources/idea-Projects/Rider/pdfconcat/page2&quot; all" />
+    <Target Name="RunTests">
+      <Error Text="TestSourcePath property is not set. Usage: dotnet build -t:RunTests -p:TestSourcePath=/path/to/files" Condition="'$(TestSourcePath)' == ''" />
+      <Message Text="Running tests with source path: $(TestSourcePath)" Importance="high" />
+      <Exec Command="dotnet run --no-build &quot;$(TestSourcePath)/page1&quot; &quot;$(TestSourcePath)/page2&quot; append" />
+      <Exec Command="dotnet run --no-build &quot;$(TestSourcePath)/page1&quot; &quot;$(TestSourcePath)/page2&quot; all" />
     </Target>
 </Project>
