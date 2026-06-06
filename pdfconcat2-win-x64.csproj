@@ -17,7 +17,7 @@
         <AssemblyName>pdfconcat2-win-x64</AssemblyName>
         <Company>Your Company</Company>
         <Copyright>© 2026</Copyright>
-        <WarningLevel>latest</WarningLevel>
+        <WarningLevel>4</WarningLevel>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
