@@ -15,7 +15,7 @@
         <Deterministic>true</Deterministic>
         <Product>pdfconcat2-win-x64</Product>
         <AssemblyName>pdfconcat2-win-x64</AssemblyName>
-        <Company>Your Company</Company>
+        <Company>幽霊会社</Company>
         <Copyright>© 2026</Copyright>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
