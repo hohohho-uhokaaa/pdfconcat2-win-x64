@@ -13,7 +13,8 @@
         <TrimMode>partial</TrimMode>
         <TestSourcePath></TestSourcePath>
         <Deterministic>true</Deterministic>
-        <Product>pdfconcat2</Product>
+        <Product>pdfconcat2-win-x64</Product>
+        <AssemblyName>pdfconcat2-win-x64</AssemblyName>
         <Company>Your Company</Company>
         <Copyright>© 2026</Copyright>
         <WarningLevel>latest</WarningLevel>

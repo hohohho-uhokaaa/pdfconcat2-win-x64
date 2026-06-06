@@ -1,4 +1,4 @@
-# pdfconcat2
+# pdfconcat2-win-x64
 
 複数のPDFファイルを効率的に結合するための.NETコンソールアプリケーションです。
 

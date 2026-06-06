@@ -66,38 +66,45 @@ class Program
 {
     static void Main(string[] args)
     {
+        // デバッグ情報：受け取った引数を表示
         Console.WriteLine(string.Format(
             pdfconcat2.Properties.Messages.DebugArgCount,
             args.Length,
             string.Join(", ", args)
         ));
 
+        // 引数の個数チェック：3個未満の場合は使用方法を表示して終了
         if (args.Length < 3)
         {
             ShowUsage();
             return;
         }
 
+        // コマンドライン引数から入力ディレクトリとモードを取得
         string dir1 = args[0];
         string dir2 = args[1];
         string mode = args[2].ToLower();
 
+        // モード引数の検証：appendまたはallのみが有効
         if (mode != "append" && mode != "all")
         {
             Console.WriteLine(pdfconcat2.Properties.Messages.ErrorMode);
             return;
         }
 
+        // 入力ディレクトリの存在確認
         if (!Directory.Exists(dir1) || !Directory.Exists(dir2))
         {
             Console.WriteLine(pdfconcat2.Properties.Messages.DirectoryNotFound);
             return;
         }
 
+        // 出力ディレクトリのパスを設定（ホームディレクトリ内の output フォルダ）
         string projectRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string outputDir = Path.Combine(projectRoot, "output");
         string finalAllInOnePath = Path.Combine(outputDir, "allin1.pdf");
 
+        // 出力ディレクトリが存在しない場合は作成
         if (!Directory.Exists(outputDir))
         {
             Directory.CreateDirectory(outputDir);
@@ -113,14 +120,17 @@ class Program
                 mode
             ));
 
+            // dir1 内の 8 桁のファイル名を持つPDFのみを取得（例：00000001.pdf）
             string[] filesInDir1 = Directory.GetFiles(dir1, "*.pdf")
                 .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
                 .ToArray();
 
             int processedCount = 0;
 
+            // 各ファイルペアを処理
             foreach (string file1Path in filesInDir1)
             {
+                // dir2 内に対応するファイルが存在するか確認
                 string fileName = Path.GetFileName(file1Path);
                 string file2Path = Path.Combine(dir2, fileName);
 
@@ -138,14 +148,19 @@ class Program
                     pdfconcat2.Properties.Messages.ProcessingFile,
                     fileName
                 ));
+
+                // ファイル名（拡張子なし）をしおりのタイトルとして使用
                 string bookmarkTitle = Path.GetFileNameWithoutExtension(fileName);
 
+                // 選択されたモードに応じて個別ファイルを生成
                 if (mode == "append")
                 {
+                    // append モード：file1 を先頭に、file2 全体を後ろに追加
                     CreateSingleAppendPdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                 }
                 else if (mode == "all")
                 {
+                    // all モード：file1 と file2 のページを交互に結合
                     CreateSingleInterleavePdf(file1Path, file2Path, singleOutputPath, bookmarkTitle);
                 }
 
@@ -163,13 +178,16 @@ class Program
             // =================================================================
             Console.WriteLine($"\n{pdfconcat2.Properties.Messages.Step2Start}");
 
+            // ステップ1で生成された個別ファイルを、ファイル名でソートして取得
             string[] generatedOutputs = Directory.GetFiles(outputDir, "*.pdf")
                 .Where(f => Regex.IsMatch(Path.GetFileName(f), @"^\d{8}\.pdf$", RegexOptions.IgnoreCase))
                 .OrderBy(f => Path.GetFileName(f))
                 .ToArray();
 
+            // 最終的な統合PDFドキュメントを作成
             using (PdfDocument finalDocument = new PdfDocument())
             {
+                // 生成された各PDFファイルを最終ドキュメントに追加
                 foreach (string outputPath in generatedOutputs)
                 {
                     Console.WriteLine(string.Format(
@@ -177,35 +195,37 @@ class Program
                         Path.GetFileName(outputPath)
                     ));
 
-                    // 💡 しおりの階層構造を壊さずにコピーするため、各ページの参照元ドキュメントを開き、
-                    // ページ追加と同時に、そのファイルが持つ Outlines を finalDocument に移植します
+                    // 各PDFファイルを読み込んで、ページとしおり構造をコピー
                     using (PdfDocument inputPart = PdfReader.Open(outputPath, PdfDocumentOpenMode.Import))
                     {
+                        // 現在の統合ドキュメントのページ数を取得（ページのオフセットとして使用）
                         int basePageIndex = finalDocument.PageCount;
 
-                        // ページの実体を移行
+                        // すべてのページを最終ドキュメントに追加
                         for (int i = 0; i < inputPart.PageCount; i++)
                         {
                             finalDocument.AddPage(inputPart.Pages[i]);
                         }
 
-                        // 各中間ファイルが持っているしおり構造（Outlines）を、統合先ドキュメントの正しいページ位置へ再マッピングして追加
+                        // 各PDFファイルが持つしおり情報を、正しいページ位置にマッピングして最終ドキュメントに追加
                         foreach (PdfOutline outline in inputPart.Outlines)
                         {
-                            // 元のしおりがどのページを指していたか特定
+                            // 元のドキュメント内でしおりが参照していたページのインデックスを特定
                             int originalTargetIdx = inputPart.Pages.Cast<PdfPage>().ToList().IndexOf(outline.DestinationPage);
                             if (originalTargetIdx >= 0)
                             {
-                                // 統合先ドキュメント上の正しい絶対ページにしおりを紐付け直す
+                                // しおりのページ参照を、統合後のドキュメント内の正しい位置に調整して追加
                                 finalDocument.Outlines.Add(outline.Title, finalDocument.Pages[basePageIndex + originalTargetIdx]);
                             }
                         }
                     }
                 }
 
+                // 最終ドキュメントをファイルに保存
                 finalDocument.Save(finalAllInOnePath);
             }
 
+            // 完了メッセージを表示
             Console.WriteLine($"\n{pdfconcat2.Properties.Messages.CompleteSuccess}");
             Console.WriteLine(string.Format(
                 pdfconcat2.Properties.Messages.OutputDirectory,
@@ -219,6 +239,7 @@ class Program
         }
         catch (Exception ex)
         {
+            // エラーが発生した場合はエラーメッセージを表示
             Console.WriteLine(string.Format(
                 pdfconcat2.Properties.Messages.ErrorOccurred,
                 ex.Message
@@ -226,6 +247,9 @@ class Program
         }
     }
 
+    /// <summary>
+    /// 使用方法をコンソールに表示
+    /// </summary>
     static void ShowUsage()
     {
         Console.WriteLine(pdfconcat2.Properties.Messages.UsageHeader);
@@ -234,7 +258,9 @@ class Program
     }
 
     /// <summary>
-    /// 【Step1用】 file1 の後ろに file2 を丸ごと結合し、要件通りのしおりを追加
+    /// 【Step1用】appendモード：file1の全ページの後ろに file2 の全ページを追加し、しおりを埋め込む
+    /// 出力ファイル形式：file1のページ + file2のページ
+    /// しおり：file1の先頭ページ、file2の先頭ページ
     /// </summary>
     static void CreateSingleAppendPdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
@@ -243,22 +269,28 @@ class Program
             using (PdfDocument inputDocument1 = PdfReader.Open(file1, PdfDocumentOpenMode.Import))
             using (PdfDocument inputDocument2 = PdfReader.Open(file2, PdfDocumentOpenMode.Import))
             {
+                // file1 のすべてのページを追加
                 for (int i = 0; i < inputDocument1.PageCount; i++)
                 {
                     outputDocument.AddPage(inputDocument1.Pages[i]);
                 }
+
+                // file2 のすべてのページを後ろに追加
                 for (int i = 0; i < inputDocument2.PageCount; i++)
                 {
                     outputDocument.AddPage(inputDocument2.Pages[i]);
                 }
 
+                // file1 の先頭ページ（ページ0）にしおりを設定
                 if (outputDocument.PageCount >= 1)
                 {
                     outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);
                 }
+
+                // file2 の先頭ページ（inputDocument1.PageCount ページ目）にしおりを設定
                 if (outputDocument.PageCount >= 2)
                 {
-                    outputDocument.Outlines.Add("資料", outputDocument.Pages[inputDocument1.PageCount]); // file2の先頭ページ
+                    outputDocument.Outlines.Add("資料", outputDocument.Pages[inputDocument1.PageCount]);
                 }
             }
             outputDocument.Save(outputPath);
@@ -266,7 +298,9 @@ class Program
     }
 
     /// <summary>
-    /// 【Step1用】 file1 と file2 を交互結合し、page1由来の1ページ目のみにしおりを追加
+    /// 【Step1用】allモード：file1 と file2 のページを交互に結合し、file1の先頭ページのみにしおりを追加
+    /// 出力ファイル形式：file1のページ0 + file2のページ0 + file1のページ1 + file2のページ1 + ...
+    /// しおり：file1の先頭ページのみ
     /// </summary>
     static void CreateSingleInterleavePdf(string file1, string file2, string outputPath, string bookmarkTitle)
     {
@@ -275,23 +309,28 @@ class Program
             using (PdfDocument inputDocument1 = PdfReader.Open(file1, PdfDocumentOpenMode.Import))
             using (PdfDocument inputDocument2 = PdfReader.Open(file2, PdfDocumentOpenMode.Import))
             {
+                // 各ドキュメントのページ数を取得
                 int p1Count = inputDocument1.PageCount;
                 int p2Count = inputDocument2.PageCount;
                 int maxPages = Math.Max(p1Count, p2Count);
 
+                // file1 と file2 のページを交互に追加
                 for (int i = 0; i < maxPages; i++)
                 {
+                    // file1 のページ i が存在すれば追加
                     if (i < p1Count)
                     {
                         outputDocument.AddPage(inputDocument1.Pages[i]);
                     }
+
+                    // file2 のページ i が存在すれば追加
                     if (i < p2Count)
                     {
                         outputDocument.AddPage(inputDocument2.Pages[i]);
                     }
                 }
 
-                // ✨ 要件：page1の1ページ目にファイル名、page2由来には追加しない
+                // file1 の先頭ページ（ページ0）にのみしおりを設定
                 if (outputDocument.PageCount >= 1)
                 {
                     outputDocument.Outlines.Add(bookmarkTitle, outputDocument.Pages[0]);

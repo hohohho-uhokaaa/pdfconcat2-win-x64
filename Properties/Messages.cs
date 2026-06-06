@@ -17,5 +17,5 @@ public static class Messages
     public const string ErrorOccurred = "エラーが発生しました: {0}";
     public const string UsageHeader = "【使い方】";
     public const string UsageFormat = "dotnet run <dir1のパス> <dir2のパス> <mode(append|all)>";
-    public const string UsageExample = "例: dotnet run /path/to/page1 /path/to/page2 all";
+    public const string UsageExample = "例: dotnet run C:\\Users\\YourName\\page1 C:\\Users\\YourName\\page2 all";
 }
