@@ -25,8 +25,8 @@
 ### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/hohohho-uhokaaa/pdfconcat.git
-cd pdfconcat
+git clone https://github.com/hohohho-uhokaaa/pdfconcat2-win-x64.git
+cd pdfconcat2-win-x64
 ```
 
 ### 2. ビルド

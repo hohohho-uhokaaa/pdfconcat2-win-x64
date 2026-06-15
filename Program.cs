@@ -1,7 +1,7 @@
 //
-// pdfconcat2  concatinate 2 pdf files in 1 (append) or all pdfs in 1 pdf file with page appending order
-// coded by google gemini
-// for all person who hates such a f*cking damn work by hand also em NA-KA-MA!!
+// pdfconcat2 - Concatenate 2 PDF files into 1 (append) or all PDFs into 1 PDF file with page appending order
+// Developed with assistance from AI
+// For anyone who wants to automate tedious manual PDF concatenation work
 // 06/03/2026 Ver. 0.2
 //
 // directory tree and pdf file store
@@ -226,7 +226,7 @@ class Program
             }
 
             // 完了メッセージを表示
-            Console.WriteLine($"\n{pdfconcat2.Properties.Messages.CompleteSuccess}");
+            Console.WriteLine("\n" + pdfconcat2.Properties.Messages.CompleteSuccess);
             Console.WriteLine(string.Format(
                 pdfconcat2.Properties.Messages.OutputDirectory,
                 outputDir,
